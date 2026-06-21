@@ -1,0 +1,157 @@
+SOLID PRINCIPLES
+
+
+What is SOLID?
+--------------
+5 OOP design principles that make your code:
+  * easier to maintain
+  * easier to extend
+  * easier to test
+  * less coupled
+  * more reusable
+
+
+-- S -- Single Responsibility Principle (SRP)
+----------------------------------------------
+
+One class = one job. That's it.
+
+Bad way:
+
+  class User {
+      void saveUser()  { // DB stuff }
+      void sendEmail() { // Email stuff }
+  }
+
+  -- User class is doing too many things
+
+Good way:
+
+  class User            { String name; }
+  class UserRepository  { void save(User u) { // DB } }
+  class EmailService    { void sendEmail(User u) { // Email } }
+
+  -- each class handles only its own thing
+
+
+-- O -- Open/Closed Principle (OCP)
+-------------------------------------
+
+Open for extension, closed for modification.
+Add new features by writing new code, not editing old code.
+
+Bad way:
+
+  void pay(String type) {
+      if(type.equals("UPI"))  { ... }
+      else if(type.equals("CARD")) { ... }
+      // every new method = edit this class again
+  }
+
+Good way:
+
+  interface Payment { void pay(); }
+
+  class UPIPayment  implements Payment { public void pay() { ... } }
+  class CardPayment implements Payment { public void pay() { ... } }
+
+  -- adding PhonePe? just make a new class, touch nothing else
+
+
+-- L -- Liskov Substitution Principle (LSP)
+--------------------------------------------
+
+Child class should be able to replace parent without breaking anything.
+
+Bad way:
+
+  class Bird    { void fly() {} }
+  class Penguin extends Bird {
+      void fly() { throw new UnsupportedOperationException(); }
+      // penguins can't fly -- this breaks things
+  }
+
+Good way:
+
+  class Bird {}
+  interface Flyable { void fly(); }
+
+  class Sparrow extends Bird implements Flyable { public void fly() { ... } }
+  class Penguin extends Bird { } // no fly() forced on it
+
+  -- now substitution works without surprises
+
+
+-- I -- Interface Segregation Principle (ISP)
+----------------------------------------------
+
+Don't force a class to implement methods it doesn't need.
+
+Bad way:
+
+  interface Worker { void work(); void eat(); }
+
+  class Robot implements Worker {
+      public void work() { ... }
+      public void eat()  { } // robots don't eat, but forced to write this
+  }
+
+Good way:
+
+  interface Workable { void work(); }
+  interface Eatable  { void eat();  }
+
+  class Human implements Workable, Eatable { ... }
+  class Robot implements Workable          { ... }
+
+  -- each class picks only what it actually needs
+
+
+-- D -- Dependency Inversion Principle (DIP)
+---------------------------------------------
+
+High-level classes shouldn't depend on low-level classes.
+Both should depend on an interface.
+
+Bad way:
+
+  class UserService {
+      private MySQLDatabase db = new MySQLDatabase();
+      // tightly locked to MySQL -- hard to swap later
+  }
+
+Good way:
+
+  interface Database { void connect(); }
+
+  class MySQLDatabase      implements Database { ... }
+  class PostgreSQLDatabase implements Database { ... }
+
+  class UserService {
+      private Database db;
+      UserService(Database db) { this.db = db; } // injected from outside
+  }
+
+  -- want to switch to Postgres? just pass it in, nothing else changes
+
+
+-- Quick Interview Example (Login System) --
+--------------------------------------------
+
+SRP ->  UserController  (handles requests)
+        UserService     (business logic)
+        UserRepository  (DB stuff)
+
+OCP ->  Login via Google, Email, OTP
+        adding a new login method = new class only
+
+LSP ->  any LoginProvider can replace another LoginProvider safely
+
+ISP ->  split into separate interfaces:
+          LoginProvider
+          LogoutProvider
+          RegisterProvider
+
+DIP ->  AuthService depends on AuthProvider interface
+        not on GoogleAuth or EmailAuth directly
+        easy to swap providers anytime

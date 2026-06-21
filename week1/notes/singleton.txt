@@ -1,0 +1,92 @@
+SINGLETON DESIGN PATTERN
+
+
+What is it?
+-----------
+A Creational Design Pattern.
+Makes sure only ONE object of a class is created -- and gives a
+global way to access it.
+
+
+When do we use it?
+------------------
+Whenever you need just one shared instance across the whole app.
+
+Think of things like:
+  * Logger
+  * DB Connection Manager
+  * Config Manager
+  * Cache Manager
+  * Spring Singleton Bean
+
+
+3 things every Singleton needs
+-------------------------------
+1. Private Constructor
+   -- so nobody can do "new Singleton()" from outside
+
+2. Static variable to hold the instance
+   -- stores the one and only object
+
+3. Static getInstance() method
+   -- this is how you access the object from anywhere
+
+
+Basic code structure
+--------------------
+
+  class Singleton {
+
+      private static Singleton instance;
+
+      private Singleton() {
+          // can't call this from outside
+      }
+
+      public static Singleton getInstance() {
+          if (instance == null) {
+              instance = new Singleton();
+          }
+          return instance;
+      }
+  }
+
+
+Types of Singleton
+------------------
+
+1. Eager Initialization
+   - object is created when the class loads
+   - thread safe
+   - downside: wastes memory if you never actually use it
+
+2. Lazy Initialization
+   - object created only when you first call getInstance()
+   - saves memory
+   - NOT thread safe (problem in multithreaded apps)
+
+3. Thread Safe Singleton
+   - adds "synchronized" to getInstance()
+   - now thread safe
+   - but slower because of the lock every time
+
+4. Double Checked Locking
+   - uses synchronized block + volatile keyword
+   - thread safe AND faster than option 3
+   - this is usually the go-to in real projects
+
+
+Pros
+----
+  * only one instance = less memory usage
+  * easy global access
+  * good for shared resources
+  * no accidental duplicate objects
+
+
+Cons
+----
+  * hard to unit test (global state is tricky to mock)
+  * tight coupling -- everything depends on one object
+  * can become a bottleneck if overused
+  * thread-safe versions have some performance overhead
